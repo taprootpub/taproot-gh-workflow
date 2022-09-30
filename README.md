@@ -1,4 +1,4 @@
-# Taproot GitHub Work
+# Taproot GitHub Workflow
 
 A GitHub Action to support Taproot's editorial workflow.
 
