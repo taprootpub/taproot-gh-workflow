@@ -1,6 +1,6 @@
 # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
 name: 'Taproot GitHub Workflow'
-description: 'A GitHub Action to support Taproot's editorial workflow.'
+description: 'A GitHub Action to support the Taproot editorial workflow.'
 author: 'taprootpub'
 
 # https://actions-cool.github.io/github-action-branding/
