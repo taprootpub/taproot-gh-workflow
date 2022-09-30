@@ -11275,7 +11275,7 @@ async function run() {
   try {
     const { owner, repo } = context.repo;
     if (context.eventName === 'push') {
-      const message = github.event.head_commit.message;
+      const message = context.event.head_commit.message;
 
       let issues = [];
       let arr = message.split(' ');
