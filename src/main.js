@@ -14,7 +14,7 @@ async function run() {
   try {
     const { owner, repo } = context.repo;
     if (context.eventName === 'push') {
-      const message = 'WIP #419 2022-10-06 Alberta Innovates Briefing';
+      const message = context.payload.head_commit.message;
 
       let issues = [];
       let arr = message.split(' ');
