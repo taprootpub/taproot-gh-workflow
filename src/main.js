@@ -18,8 +18,8 @@ async function run() {
       const commits = context.payload.commits;
 
       let issues = [];
-      const addLabels = '';
-      const removeLabelsString = '';
+      var addLabels = '';
+      var removeLabelsString = '';
 
       // iterate through each commit
       for (const commit of commits) {
