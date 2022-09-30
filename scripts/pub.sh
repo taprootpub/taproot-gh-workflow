@@ -4,9 +4,6 @@ npm run format-check
 echo "[TEST] test package"
 npm run package
 
-echo "[TEST] test commit"
-npm run check-commit
-
 echo "[Action] do tag"
 npm run tag
 

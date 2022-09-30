@@ -1,3 +1,5 @@
+// credit to: https://github.com/actions-cool/pr-extract-issues
+
 const chalk = require('chalk');
 const open = require('open');
 const newGithubReleaseUrl = require('new-github-release-url');

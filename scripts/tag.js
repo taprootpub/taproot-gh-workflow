@@ -1,3 +1,5 @@
+// credit to: https://github.com/actions-cool/pr-extract-issues
+
 const chalk = require('chalk');
 const simpleGit = require('simple-git/promise');
 const { execSync } = require('child_process');
