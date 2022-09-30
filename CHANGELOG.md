@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.9
+
+`2022.09.30`
+
+- Added support to open or close issues.
+
 ## v1.0.8
 
 `2022.09.30`

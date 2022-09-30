@@ -14,18 +14,15 @@ async function run() {
   try {
     const { owner, repo } = context.repo;
     if (context.eventName === 'push') {
-      //const message = context.payload.head_commit.message;
       const commits = context.payload.commits;
 
       let issues = [];
       var addLabels = '';
       var removeLabelsString = '';
 
-      // iterate through each commit
       for (const commit of commits) {
         const message = commit.message;
 
-        // if message starts with WIP case insensitive
         if (message.toLowerCase().startsWith('wip') || message.toLowerCase().startsWith('rfe') || message.toLowerCase().startsWith('rtp') || message.toLowerCase().startsWith('pub')) {
           let arr = message.split(' ');
           arr.forEach(it => {
@@ -53,7 +50,6 @@ async function run() {
         }
       }
       
-      // if issues found
       if (issues.length > 0) {
         const removeLabels = dealStringToArr(removeLabelsString);
 
@@ -89,7 +85,35 @@ async function run() {
               core.info(`Actions: [remove-label][${issue}][${label}] success!`);
             }
           }
+          if (addLabels == 'published') {
+            await octokit.issues.update({
+              owner,
+              repo,
+              issue_number: issue,
+              state: 'closed',
+            });
+            core.info(`Actions: [close-issue][${issue}] success!`);
+          }
+          else 
+          {
+            const issueInfo = await octokit.issues.get({
+              owner,
+              repo,
+              issue_number: issue,
+            });
+            if (issueInfo.data.state == 'closed') {
+              await octokit.issues.update({
+                owner,
+                repo,
+                issue_number: issue,
+                state: 'open',
+              });
+              core.info(`Actions: [open-issue][${issue}] success!`);
+            }
+          }
         }
+      } else {
+        core.info(`Actions: [no-issue]`);
       }
     } else {
       core.setFailed(outEventErr);
