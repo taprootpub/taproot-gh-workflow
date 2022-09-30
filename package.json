@@ -1,0 +1,32 @@
+{
+  "private": true,
+  "description": "A GitHub Action to support Taproot's editorial workflow.",
+  "license": "MIT",
+  "author": "taprootpub",
+  "main": "src/main.js",
+  "scripts": {
+    "package": "ncc build",
+    "format": "prettier --write src/*.js",
+    "format-check": "prettier --check src/*.js",
+    "pub": "sh -e ./scripts/pub.sh",
+    "check-commit": "node ./scripts/check-commit.js",
+    "tag": "node ./scripts/tag.js",
+    "release": "node ./scripts/release"
+  },
+  "dependencies": {
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^4.0.0",
+    "@octokit/rest": "^18.0.14",
+    "actions-util": "^1.0.0",
+    "ncc": "^0.3.6"
+  },
+  "devDependencies": {
+    "@umijs/fabric": "^2.5.6",
+    "@vercel/ncc": "^0.27.0",
+    "chalk": "^4.1.2",
+    "new-github-release-url": "^1.0.0",
+    "open": "^7.3.0",
+    "prettier": "^2.2.1",
+    "simple-git": "^2.46.0"
+  }
+}

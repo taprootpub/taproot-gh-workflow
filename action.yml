@@ -1,0 +1,27 @@
+# https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
+name: 'Taproot GitHub Workflow'
+description: 'A GitHub Action to support Taproot's editorial workflow.'
+author: 'taprootpub'
+
+# https://actions-cool.github.io/github-action-branding/
+branding:
+  icon: 'edit'
+  color: 'purple'
+
+inputs:
+  token:
+    description: Secret GitHub API token to use for making API requests
+    default: ${{ github.token }}
+    required: true
+  add-labels:
+    description: Extra operations on issues
+  remove-labels:
+    description: Will remove labels on issues
+
+outputs:
+  issues:
+    description: Get issues numbers
+
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
