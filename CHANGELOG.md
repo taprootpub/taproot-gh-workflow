@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.4
+
+`2022.09.30`
+
+- Change payload to event.
+
 ## v1.0.3
 
 `2022.09.30`
