@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.7
+
+`2022.09.30`
+
+- Switch from head_commit to iterate through commits.
+
 ## v1.0.6
 
 `2022.09.30`

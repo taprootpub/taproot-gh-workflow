@@ -13,10 +13,6 @@ inputs:
     description: Secret GitHub API token to use for making API requests
     default: ${{ github.token }}
     required: true
-  add-labels:
-    description: Extra operations on issues
-  remove-labels:
-    description: Will remove labels on issues
 
 outputs:
   issues:
