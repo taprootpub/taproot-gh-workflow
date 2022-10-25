@@ -37,16 +37,16 @@ async function run() {
 
         if (message.toLowerCase().startsWith('wip')) {
           addLabels = 'in progress';
-          removeLabelsString = 'idea, ready for edit, ready to publish, published';
+          removeLabelsString = 'idea, pursuing, ready for edit, ready to publish, published';
         } else if (message.toLowerCase().startsWith('rfe')) {
           addLabels = 'ready for edit';
-          removeLabelsString = 'idea, in progress, ready to publish, published';
+          removeLabelsString = 'idea, pursuing, in progress, ready to publish, published';
         } else if (message.toLowerCase().startsWith('rtp')) {
           addLabels = 'ready to publish';
-          removeLabelsString = 'idea, in progress, ready for edit, published';
+          removeLabelsString = 'idea, pursuing, in progress, ready for edit, published';
         } else if (message.toLowerCase().startsWith('pub')) {
           addLabels = 'published';
-          removeLabelsString = 'idea, in progress, ready for edit, ready to publish';
+          removeLabelsString = 'idea, pursuing, in progress, ready for edit, ready to publish';
         }
       }
       

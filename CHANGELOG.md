@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.10
+
+`2022.10.25`
+
+- Added the "pursuing" tag to label list to be removed.
+
 ## v1.0.9
 
 `2022.09.30`
