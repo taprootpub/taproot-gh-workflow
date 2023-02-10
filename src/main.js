@@ -18,18 +18,17 @@ async function run() {
     const { owner, repo } = context.repo;
     if (context.eventName === 'push') {
       const commits = context.payload.commits;
+      const prefixes = commit_prefixes.split(';');
 
       for (const commit of commits) {
+        core.info(`[Action: Commit][${commit.message}]`);
+
         let issues = [];
-        var addLabels = '';
-        var removeLabelsString = '';
+        let addLabels = '';
+        let removeLabelsString = '';
 
-        const message = commit.message;
-
-        const prefixes = commit_prefixes.split(';');
-
-        if (prefixes.some(prefix => message.toLowerCase().startsWith(prefix.trim()))) {
-          let arr = message.split(' ');
+        if (prefixes.some(prefix => commit.message.toLowerCase().startsWith(prefix.trim()))) {
+          let arr = commit.message.split(' ');
           arr.forEach(it => {
             if (it.startsWith('#')) {
               issues.push(it.replace('#', ''));
@@ -37,84 +36,79 @@ async function run() {
           });
 
           core.info(`[Action: Query Issues][${issues}]`);
-        }
-        else {
-          continue;
-        }
 
-        // for each prefix, set addLabels to the corresponding prefix_labels
-        for (let i = 0; i < prefixes.length; i++) {
-          if (message.toLowerCase().startsWith(prefixes[i].trim())) {
-            addLabels = prefix_labels.split(';')[i].trim();
-            removeLabelsString = prefix_labels.split(';').filter((_, index) => index != i).join(',');
-            break;
-          }
-        }
-
-        if (issues.length > 0) {
-          const removeLabels = dealStringToArr(removeLabelsString);
-  
-          if (!addLabels) {
-            continue;
-          }
-  
-          for await (const issue of issues) {
-            if (addLabels) {
-              await octokit.issues.addLabels({
-                owner,
-                repo,
-                issue_number: issue,
-                labels: dealStringToArr(addLabels),
-              });
-              core.info(`Actions: [add-labels][${issue}][${addLabels}] success!`);
+          for (let i = 0; i < prefixes.length; i++) {
+            if (commit.message.toLowerCase().startsWith(prefixes[i].trim())) {
+              addLabels = prefix_labels.split(';')[i].trim();
+              removeLabelsString = prefix_labels
+                .split(';')
+                .filter((_, index) => index != i)
+                .join(',');
+              break;
             }
-            if (removeLabels && removeLabels.length) {
-              const issueInfo = await octokit.issues.get({
-                owner,
-                repo,
-                issue_number: issue,
-              });
-              const baseLabels = issueInfo.data.labels.map(({ name }) => name);
-              const removes = baseLabels.filter(name => removeLabels.includes(name));
-              for (const label of removes) {
-                await octokit.issues.removeLabel({
+          }
+
+          if (issues.length > 0) {
+            const removeLabels = dealStringToArr(removeLabelsString);
+
+            for await (const issue of issues) {
+              if (addLabels) {
+                await octokit.issues.addLabels({
                   owner,
                   repo,
                   issue_number: issue,
-                  name: label,
+                  labels: dealStringToArr(addLabels),
                 });
-                core.info(`Actions: [remove-label][${issue}][${label}] success!`);
+                core.info(`Actions: [add-labels][${issue}][${addLabels}] success!`);
               }
-            }
-            if (addLabels == close_label) {
-              await octokit.issues.update({
-                owner,
-                repo,
-                issue_number: issue,
-                state: 'closed',
-              });
-              core.info(`Actions: [close-issue][${issue}] success!`);
-            }
-            else 
-            {
-              const issueInfo = await octokit.issues.get({
-                owner,
-                repo,
-                issue_number: issue,
-              });
-              if (issueInfo.data.state == 'closed') {
+              if (removeLabels && removeLabels.length) {
+                const issueInfo = await octokit.issues.get({
+                  owner,
+                  repo,
+                  issue_number: issue,
+                });
+                const baseLabels = issueInfo.data.labels.map(({ name }) => name);
+                const removes = baseLabels.filter(name => removeLabels.includes(name));
+                for (const label of removes) {
+                  await octokit.issues.removeLabel({
+                    owner,
+                    repo,
+                    issue_number: issue,
+                    name: label,
+                  });
+                  core.info(`Actions: [remove-label][${issue}][${label}] success!`);
+                }
+              }
+              if (addLabels == close_label) {
                 await octokit.issues.update({
                   owner,
                   repo,
                   issue_number: issue,
-                  state: 'open',
+                  state: 'closed',
                 });
-                core.info(`Actions: [open-issue][${issue}] success!`);
+                core.info(`Actions: [close-issue][${issue}] success!`);
+              } else {
+                const issueInfo = await octokit.issues.get({
+                  owner,
+                  repo,
+                  issue_number: issue,
+                });
+                if (issueInfo.data.state == 'closed') {
+                  await octokit.issues.update({
+                    owner,
+                    repo,
+                    issue_number: issue,
+                    state: 'open',
+                  });
+                  core.info(`Actions: [open-issue][${issue}] success!`);
+                }
               }
             }
+          } else {
+            core.info(`Actions: [no-issue]`);
           }
         } else {
-          core.info(`Actions: [no-issue]`);
+          continue;
         }
       }
     } else {
