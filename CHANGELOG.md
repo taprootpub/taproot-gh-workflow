@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.12
+
+`2023.02.10`
+
+- Made the labels and prefixes configurable
+- Added support for multiple commits in a single push
+
 ## v1.0.11
 
 `2022.10.25`

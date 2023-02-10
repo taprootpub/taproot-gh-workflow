@@ -13,10 +13,18 @@ inputs:
     description: Secret GitHub API token to use for making API requests
     default: ${{ github.token }}
     required: true
-
-outputs:
-  issues:
-    description: Get issues numbers
+  commit_prefixes:
+    description: semicolon-delimited list of prefixes for commit messages
+    default: 'idea;pur;wip;rfe;rtp;pub'
+    required: false
+  prefix_labels:
+    description: corresponding semicolon-delimited list of labels for the prefixes
+    default: 'idea;pursuing;in progress;ready for edit;ready to publish;published'
+    required: false
+  close_label:
+    description: the label in the workflow that will close the issue
+    default: 'published'
+    required: false
 
 runs:
   using: 'node12'

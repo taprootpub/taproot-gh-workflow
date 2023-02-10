@@ -5,6 +5,9 @@ const { dealStringToArr } = require('actions-util');
 
 // **********************************************************
 const token = core.getInput('token');
+const commit_prefixes = core.getInput('commit_prefixes');
+const prefix_labels = core.getInput('prefix_labels');
+const close_label = core.getInput('close_label');
 const octokit = new Octokit({ auth: `token ${token}` });
 const context = github.context;
 
@@ -16,14 +19,16 @@ async function run() {
     if (context.eventName === 'push') {
       const commits = context.payload.commits;
 
-      let issues = [];
-      var addLabels = '';
-      var removeLabelsString = '';
-
       for (const commit of commits) {
+        let issues = [];
+        var addLabels = '';
+        var removeLabelsString = '';
+
         const message = commit.message;
 
-        if (message.toLowerCase().startsWith('wip') || message.toLowerCase().startsWith('rfe') || message.toLowerCase().startsWith('rtp') || message.toLowerCase().startsWith('pub')) {
+        const prefixes = commit_prefixes.split(';');
+
+        if (prefixes.some(prefix => message.toLowerCase().startsWith(prefix.trim()))) {
           let arr = message.split(' ');
           arr.forEach(it => {
             if (it.startsWith('#')) {
@@ -32,88 +37,85 @@ async function run() {
           });
 
           core.info(`[Action: Query Issues][${issues}]`);
-          core.setOutput('issues', issues);
+        }
+        else {
+          continue;
         }
 
-        if (message.toLowerCase().startsWith('wip')) {
-          addLabels = 'in progress';
-          removeLabelsString = 'idea, pursuing, ready for edit, ready to publish, published';
-        } else if (message.toLowerCase().startsWith('rfe')) {
-          addLabels = 'ready for edit';
-          removeLabelsString = 'idea, pursuing, in progress, ready to publish, published';
-        } else if (message.toLowerCase().startsWith('rtp')) {
-          addLabels = 'ready to publish';
-          removeLabelsString = 'idea, pursuing, in progress, ready for edit, published';
-        } else if (message.toLowerCase().startsWith('pub')) {
-          addLabels = 'published';
-          removeLabelsString = 'idea, pursuing, in progress, ready for edit, ready to publish';
-        }
-      }
-      
-      if (issues.length > 0) {
-        const removeLabels = dealStringToArr(removeLabelsString);
-
-        if (!addLabels) {
-          return false;
-        }
-
-        for await (const issue of issues) {
-          if (addLabels) {
-            await octokit.issues.addLabels({
-              owner,
-              repo,
-              issue_number: issue,
-              labels: dealStringToArr(addLabels),
-            });
-            core.info(`Actions: [add-labels][${issue}][${addLabels}] success!`);
+        // for each prefix, set addLabels to the corresponding prefix_labels
+        for (let i = 0; i < prefixes.length; i++) {
+          if (message.toLowerCase().startsWith(prefixes[i].trim())) {
+            addLabels = prefix_labels.split(';')[i].trim();
+            removeLabelsString = prefix_labels.split(';').filter((_, index) => index != i).join(',');
+            break;
           }
-          if (removeLabels && removeLabels.length) {
-            const issueInfo = await octokit.issues.get({
-              owner,
-              repo,
-              issue_number: issue,
-            });
-            const baseLabels = issueInfo.data.labels.map(({ name }) => name);
-            const removes = baseLabels.filter(name => removeLabels.includes(name));
-            for (const label of removes) {
-              await octokit.issues.removeLabel({
+        }
+
+        if (issues.length > 0) {
+          const removeLabels = dealStringToArr(removeLabelsString);
+  
+          if (!addLabels) {
+            continue;
+          }
+  
+          for await (const issue of issues) {
+            if (addLabels) {
+              await octokit.issues.addLabels({
                 owner,
                 repo,
                 issue_number: issue,
-                name: label,
+                labels: dealStringToArr(addLabels),
               });
-              core.info(`Actions: [remove-label][${issue}][${label}] success!`);
+              core.info(`Actions: [add-labels][${issue}][${addLabels}] success!`);
             }
-          }
-          if (addLabels == 'published') {
-            await octokit.issues.update({
-              owner,
-              repo,
-              issue_number: issue,
-              state: 'closed',
-            });
-            core.info(`Actions: [close-issue][${issue}] success!`);
-          }
-          else 
-          {
-            const issueInfo = await octokit.issues.get({
-              owner,
-              repo,
-              issue_number: issue,
-            });
-            if (issueInfo.data.state == 'closed') {
+            if (removeLabels && removeLabels.length) {
+              const issueInfo = await octokit.issues.get({
+                owner,
+                repo,
+                issue_number: issue,
+              });
+              const baseLabels = issueInfo.data.labels.map(({ name }) => name);
+              const removes = baseLabels.filter(name => removeLabels.includes(name));
+              for (const label of removes) {
+                await octokit.issues.removeLabel({
+                  owner,
+                  repo,
+                  issue_number: issue,
+                  name: label,
+                });
+                core.info(`Actions: [remove-label][${issue}][${label}] success!`);
+              }
+            }
+            if (addLabels == close_label) {
               await octokit.issues.update({
                 owner,
                 repo,
                 issue_number: issue,
-                state: 'open',
+                state: 'closed',
               });
-              core.info(`Actions: [open-issue][${issue}] success!`);
+              core.info(`Actions: [close-issue][${issue}] success!`);
+            }
+            else 
+            {
+              const issueInfo = await octokit.issues.get({
+                owner,
+                repo,
+                issue_number: issue,
+              });
+              if (issueInfo.data.state == 'closed') {
+                await octokit.issues.update({
+                  owner,
+                  repo,
+                  issue_number: issue,
+                  state: 'open',
+                });
+                core.info(`Actions: [open-issue][${issue}] success!`);
+              }
             }
           }
+        } else {
+          core.info(`Actions: [no-issue]`);
         }
-      } else {
-        core.info(`Actions: [no-issue]`);
       }
     } else {
       core.setFailed(outEventErr);
