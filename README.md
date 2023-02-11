@@ -7,9 +7,10 @@ h/t to [actions-cool/pr-extract-issues](https://github.com/actions-cool/pr-extra
 ## Update process
 
 1. Update the CHANGELOG with new version number
-2. Commit and sync changes
-3. Execute: **npm run tag**
-4. Execute: **npm run release**
+2. Execute: **npm run package**
+3. Commit and sync changes
+4. Execute: **npm run tag**
+5. Execute: **npm run release**
 
 ## Changelog
 
