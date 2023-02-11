@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.14
+
+`2023.02.10`
+
+- Updated packages and to node16
+
 ## v1.0.13
 
 `2023.02.10`
