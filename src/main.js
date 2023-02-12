@@ -24,6 +24,7 @@ async function run() {
         core.info(`[Action: Commit][${commit.message}]`);
 
         let issues = [];
+        let users = [];
         let addLabels = '';
         let removeLabelsString = '';
 
@@ -32,6 +33,8 @@ async function run() {
           arr.forEach(it => {
             if (it.startsWith('#')) {
               issues.push(it.replace('#', ''));
+            } else if(it.startsWith('@')) {
+              users.push(it.replace('@', ''));
             }
           });
 
@@ -102,6 +105,15 @@ async function run() {
                   });
                   core.info(`Actions: [open-issue][${issue}] success!`);
                 }
+              }
+              if (users.length > 0) {
+                await octokit.issues.update({
+                  owner,
+                  repo,
+                  issue_number: issue,
+                  assignees: users
+                });
+                core.info(`Actions: [assign-users][${issue}][${users}] success!`);
               }
             }
           } else {

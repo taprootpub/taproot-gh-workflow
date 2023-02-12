@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.16
+
+`2023.02.12`
+
+- Added support for assigning issues to a user
+
 ## v1.0.15
 
 `2023.02.10`
